@@ -53,6 +53,7 @@ let scrapBuzzCategories = (doc: any) => {
       tag: url.split('/')[url.split('/').length - 1],
     });
   });
+  return categories;
 };
 
 export {url, parseDocument, scrapBuzzContent, scrapBuzzCategories};
