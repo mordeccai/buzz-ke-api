@@ -11,7 +11,10 @@ let parseDocument = async (tag: string, { page = 1, isArticle = false }) => {
     : await fetch(`${url}/${tag}`);
   const html = await res.text();
 
-  const doc: any = new DOMParser().parseFromString(html, 'text/html');
+  const doc: HTMLDocument | null = new DOMParser().parseFromString(
+    html,
+    'text/html'
+  );
   return doc;
 };
 
@@ -19,7 +22,6 @@ let scrapBuzzContent = (doc: any) => {
   let items: any = [];
   let listings = doc.querySelectorAll('.ls-list-container > .list-c-box');
   listings.forEach((item: any) => {
-    //const url = item.querySelector('a').getAttribute('href');
     const image_url = item
       .querySelector('a > .c-box-bg')
       .getAttribute('style')
@@ -29,7 +31,11 @@ let scrapBuzzContent = (doc: any) => {
       .replace(')', '')
       .trim();
     const title = item.querySelector('h3 > a').textContent;
-    const article = item.querySelector('h3 > a').getAttribute('href'); //.split("/lifestyle/")[1].replace("/", "");
+    const article = item
+      .querySelector('h3 > a')
+      .getAttribute('href')
+      .split('/lifestyle/')[1]
+      .replace('/', '');
     const date = item.querySelector('.box-bottom-c').textContent.trim();
 
     items.push({
@@ -56,4 +62,43 @@ let scrapBuzzCategories = (doc: any) => {
   return categories;
 };
 
-export {url, parseDocument, scrapBuzzContent, scrapBuzzCategories};
+let scrapBuzzArticle = (doc: any) => {
+  let title = doc.querySelector(
+    'body > .article-content-page > .article-c-intro > div > h1'
+  ).textContent;
+  let author = doc.querySelector(
+    'body > .article-content-page > .article-c-intro > div > div > .meta-author > a'
+  ).textContent;
+  let date = doc.querySelector(
+    'body > .article-content-page > .article-c-intro > div > div > .meta-posted > span:nth-child(2)'
+  ).textContent;
+  let article_banner = doc
+    .querySelector(
+      'body > .article-content-page > .article-main-content > .article-m-banner'
+    )
+    .getAttribute('style')
+    .toString()
+    .replace('background-image:', '')
+    .replace('url(', '')
+    .replace(')', '')
+    .trim();
+  let content = doc.querySelector(
+    'body > div.article-content-page > div.article-main-content > div.article-para'
+  ).innerHTML.toString().replaceAll("   ", "").replaceAll("\n", "").trim();
+
+  return {
+    title,
+    author,
+    date,
+    article_banner,
+    content,
+  };
+};
+
+export {
+  url,
+  parseDocument,
+  scrapBuzzContent,
+  scrapBuzzCategories,
+  scrapBuzzArticle,
+};
