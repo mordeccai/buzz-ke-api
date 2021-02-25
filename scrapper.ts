@@ -2,6 +2,7 @@ import {
   DOMParser,
   HTMLDocument,
 } from 'https://deno.land/x/deno_dom/deno-dom-wasm.ts';
+import { parse } from  "https://deno.land/std@0.61.0/flags/mod.ts";
 
 const url = 'https://www.kenyabuzz.com/lifestyle';
 
@@ -102,3 +103,12 @@ export {
   scrapBuzzCategories,
   scrapBuzzArticle,
 };
+
+let args = parse(Deno.args);
+
+if(args.tag != null){
+  let doc = await parseDocument(args.tag, {page: args.page ?? 1});
+  let content = scrapBuzzContent(doc);
+
+  console.log(content);
+}
